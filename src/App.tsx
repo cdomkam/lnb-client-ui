@@ -15,7 +15,8 @@ import {
   CardTitle,
 } from "./components/ui/card";
 import { fetch_start_agent } from "./actions";
-
+import { GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
+import {auth} from './api/firebase/setup'
 type State =
   | "idle"
   | "configuring"
@@ -58,6 +59,7 @@ export default function App() {
   const [state, setState] = useState<State>(
     showConfigOptions ? "idle" : "configuring"
   );
+
   const [error, setError] = useState<string | null>(null);
   const [startAudioOff, setStartAudioOff] = useState<boolean>(false);
   const [roomUrl, setRoomUrl] = useState<string | null>(roomQs || null);
@@ -164,6 +166,28 @@ export default function App() {
   }
 
   if (state !== "idle") {
+
+    getRedirectResult(auth)
+        .then((result) => {
+            // This gives you a Google Access Token. You can use it to access Google APIs.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+
+            // The signed-in user info.
+            const user = result.user;
+            // IdP data available using getAdditionalUserInfo(result)
+            // ...
+            console.log(user)
+        }).catch((error) => {
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // The email of the user's account used.
+            const email = error.customData.email;
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+            // ...
+        });
     return (
       <Card shadow className="animate-appear max-w-lg">
         <CardHeader>
