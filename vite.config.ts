@@ -8,7 +8,7 @@ export default defineConfig({
   assetsInclude: ["**/*.onnx"],
   server: {
     headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
       "Cross-Origin-Opener-Policy": "same-origin",
     },
   },

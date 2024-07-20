@@ -3,32 +3,37 @@ import ReactDOM from "react-dom/client";
 import { DailyProvider } from "@daily-co/daily-react";
 import { Analytics } from '@vercel/analytics/react';
 
-import Header from "./components/ui/header.tsx";
+import {
+  createBrowserRouter,
+  // createRoutesFromElements,
+  RouterProvider,
+  // Route,
+} from 'react-router-dom'
+
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import ErrorPage from "./components/ErrorPage.tsx";
+import Login from "./components/Login.tsx";
+
+// import Header from "./components/ui/header.tsx";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
 import App from "./App.tsx";
-import Splash from "./Splash.tsx";
+
 
 import "./global.css"; // Note: Core app layout can be found here
-
-// Show marketing splash page
-const showSplashPage = import.meta.env.VITE_SHOW_SPLASH ? true : false;
 
 // Show warning on Firefox
 // @ts-expect-error - Firefox is not supported
 const isFirefox: boolean = typeof InstallTrigger !== "undefined";
 
-export const Layout = () => {
-  const [showSplash, setShowSplash] = useState<boolean>(showSplashPage);
+// import { NextUIProvider } from '@nextui-org/react';
 
-  if (showSplash) {
-    return <Splash handleReady={() => setShowSplash(false)} />;
-  }
+export const Layout = () => {
 
   return (
     <DailyProvider>
       <TooltipProvider>
         <main>
-          <Header />
+          {/* <Header /> */}
           <div id="app">
             <App />
           </div>
@@ -40,14 +45,32 @@ export const Layout = () => {
   );
 };
 
+const router = createBrowserRouter([
+  {
+      path: '/',
+      element: (
+          <ProtectedRoute>
+              <Layout />
+          </ProtectedRoute>
+      ),
+      errorElement: <ErrorPage />,
+  },
+  {
+      path: '/login',
+      element: <Login />,
+      errorElement: <ErrorPage />,
+  },
+])
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {isFirefox && (
       <div className="bg-red-500 text-white text-sm font-bold text-center p-2 fixed t-0 w-full">
         Voice activity detection not supported in Firefox. For best results,
-        please use Chrome or Edge.
+        please use Chrome or Safari.
       </div>
     )}
-    <Layout />
+    {/* <Layout /> */}
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
