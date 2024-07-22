@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDaily } from "@daily-co/daily-react";
 import { ArrowRight, Ear, Loader2 } from "lucide-react";
 
@@ -15,8 +15,9 @@ import {
   CardTitle,
 } from "./components/ui/card";
 import { fetch_start_agent } from "./actions";
-import { GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import {auth} from './api/firebase/setup'
+import Signout from "./components/SignOut";
 type State =
   | "idle"
   | "configuring"
@@ -68,6 +69,24 @@ export default function App() {
   );
   const [capacityError, setCapacityError] = useState<string>(""); // New state for start error
 
+  const [fb_user_id, setUser] = useState<string | null>(null)
+  
+  
+  useEffect(() => {
+    // This code runs only once, after the initial render
+    function get_fb_user_id(){
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUser(user.uid)
+          console.log(user.uid)
+        } else {
+          // User is signed out.
+          console.log("User is Signed Out")
+        }
+      });
+    }
+    get_fb_user_id();
+  }, []); // Empty dependency array
 
   function handleRoomUrl() {
     if ((autoRoomCreation && serverUrl) || checkRoomUrl(roomUrl)) {
@@ -92,6 +111,8 @@ export default function App() {
       try {
         data = await fetch_start_agent(`${serverUrl}create_room`, serverAuth);
         if (data && !data.error) {
+          // console.log("Starting Bot")
+          // console.log(`user_id: ${fb_user_id}`)
           fetch(`${serverUrl}start_bot`, {
             method: "POST",
             headers: {
@@ -100,7 +121,8 @@ export default function App() {
             },
             body: JSON.stringify({
               room_url: data.result.url,
-              token: data.result.token
+              token: data.result.token,
+              user_id: fb_user_id
             })
           }).catch((e) => {
             console.error(`Failed to make request to ${serverUrl}/main: ${e}`);
@@ -166,30 +188,12 @@ export default function App() {
   }
 
   if (state !== "idle") {
-
-    getRedirectResult(auth)
-        .then((result) => {
-            // This gives you a Google Access Token. You can use it to access Google APIs.
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
-
-            // The signed-in user info.
-            const user = result.user;
-            // IdP data available using getAdditionalUserInfo(result)
-            // ...
-            console.log(user)
-        }).catch((error) => {
-            // Handle Errors here.
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // The email of the user's account used.
-            const email = error.customData.email;
-            // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error);
-            // ...
-        });
     return (
-      <Card shadow className="animate-appear max-w-lg">
+    <div className="">
+      <div className="w-full">
+        <Signout/>
+      </div>
+      <Card shadow className="animate-appear max-w-lg justify-center">
         <CardHeader>
           <CardTitle>Configure your devices</CardTitle>
           <CardDescription>
@@ -223,6 +227,7 @@ export default function App() {
           </div>
         )}
       </Card>
+    </div>
     );
   }
 

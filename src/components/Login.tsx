@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import {
     Tabs,
     Tab,
@@ -10,57 +10,54 @@ import {
     // CardHeader,
 } from '@nextui-org/react'
 
-import {GoogleAuthProvider, signInWithRedirect} from 'firebase/auth';
+import {User, GoogleAuthProvider, signInWithRedirect, getRedirectResult} from 'firebase/auth';
 
-import GoogleIcon from './icons/GoogleIcon';
+// import GoogleIcon from './icons/GoogleIcon';
 
 import { auth } from '../api/firebase/setup'
+import { create_user } from '@/api/firebase/functions';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
 } from 'firebase/auth'
 
-import { useNavigate } from 'react-router-dom'
+import { redirect, useNavigate } from 'react-router-dom'
 
 function Login() {
     const [selected, setSelected] = useState('login')
     const [email, setEmail] = useState('')
+    const [name, setName] = useState('')
     const [password, setPassword] = useState('')
-    const [user, setUser] = useState('')
-    const [token, setToken] = useState('')
+    // const [user, setUser] = useState('')
+    // const [token, setToken] = useState('')
     const navigate = useNavigate()
 
-    function onGoogleClick(){
-        console.log("issa google click")
-        const provider = new GoogleAuthProvider();
-        signInWithRedirect(auth, provider);
-        navigate('/')
-        // signInWithPopup(auth, provider)
-        // .then((result) => {
-        //     // This gives you a Google Access Token. You can use it to access the Google API.
-        //     const credential = GoogleAuthProvider.credentialFromResult(result);
-        //     const t = credential.accessToken;
-        //     setToken(t)
-            
-        //     // The signed-in user info.
-        //     const u = result.user;
-        //     setUser(u)
+    // useEffect(()=>{
+    //     const handleRedirectResult = async () => {
+    //         try {
+    //           console.log("handling redirect")
+    //           const result = await getRedirectResult(auth);
+    //           console.log(result)
+    //           if (result && result.user) {
+    //             const user: User = result.user;
+    //             console.log('User signed in:', user);
+    //             // Handle the user information
+    //           }
+    //         } catch (error) {
+    //           console.error('Error during sign-in:', error);
+    //         }
+    //       };
+          
+    //       handleRedirectResult(); 
+    // },[])
 
-        //     console.log(u)
+    // function onGoogleClick(){
+    //     console.log("issa google click")
+    //     const provider = new GoogleAuthProvider();
+    //     signInWithRedirect(auth, provider);
+        
+    // }
 
-        //     // IdP data available using getAdditionalUserInfo(result)
-        //     // ...
-        // }).catch((error) => {
-        //     // Handle Errors here.
-        //     const errorCode = error.code;
-        //     const errorMessage = error.message;
-        //     // The email of the user's account used.
-        //     const email = error.customData.email;
-        //     // The AuthCredential type that was used.
-        //     const credential = GoogleAuthProvider.credentialFromError(error);
-        //     // ...
-        // });
-    }
     async function handleLogin(event: any) {
         event.preventDefault()
 
@@ -86,6 +83,27 @@ function Login() {
                     password
                 )
                 console.log('Logged in user:', userCredential.user)
+                
+                const user_data = {
+                    username: name,
+                    name: name
+                }
+                create_user(user_data)
+                  .then((result) => {
+                    // Read result of the Cloud Function.
+                    /** @type {any} */
+                    const data = result.data;
+                    const sanitizedMessage = data.text;
+                  })
+                  .catch((error) => {
+                    // Getting the Error details.
+                    const code = error.code;
+                    const message = error.message;
+                    const details = error.details;
+                    // ...
+                  });
+                
+                navigate('/')
             } catch (error) {
                 alert('Error signing in with email and password')
                 console.error('Error signing in with email and password', error)
@@ -162,12 +180,12 @@ function Login() {
                                             </Button>
                                             
                                         </div>
-                                        <Button color="default" 
+                                        {/* <Button color="default" 
                                                 variant="bordered" 
                                                 startContent={<GoogleIcon/>} 
                                                 onClick={()=>onGoogleClick()}>
                                             Login with Google
-                                        </Button>
+                                        </Button> */}
                                     </form>
                                 </Tab>
                                 <Tab key="sign-up" title="Sign up">
@@ -176,6 +194,7 @@ function Login() {
                                             isRequired
                                             label="Name"
                                             placeholder="Enter your name"
+                                            onChange={(e)=>setName(e.target.value)}
                                         />
                                         <Input
                                             isRequired
