@@ -13,6 +13,7 @@ import {
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import ErrorPage from "./components/ErrorPage.tsx";
 import Login from "./components/Login.tsx";
+import DashBoard from "./pages/dashboard.tsx";
 
 // import Header from "./components/ui/header.tsx";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
@@ -60,6 +61,11 @@ const router = createBrowserRouter([
       element: <Login />,
       errorElement: <ErrorPage />,
   },
+  {
+    path: '/dashboard',
+    element: <DashBoard />,
+    errorElement: <ErrorPage />,
+},
 ])
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

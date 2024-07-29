@@ -221,11 +221,11 @@ export default function App() {
             {status_text[state as keyof typeof status_text]}
           </Button>
         </CardFooter>
-        {capacityError && (
+        {/* {capacityError && (
           <div className="text-red-500 mt-2 p-4">
             {capacityError}<br/> Alternatively you can create your own. Click <strong><u><a href="https://docs.cerebrium.ai/v4/examples/realtime-voice-agents">here</a></u></strong> to see how
           </div>
-        )}
+        )} */}
       </Card>
     </div>
     );
@@ -234,7 +234,7 @@ export default function App() {
   return (
     <Card shadow className="animate-appear max-w-lg">
       <CardHeader>
-        <CardTitle>Pipecat {import.meta.env.VITE_APP_TITLE}</CardTitle>
+        <CardTitle>{import.meta.env.VITE_APP_TITLE}</CardTitle>
         <CardDescription>Check configuration below</CardDescription>
       </CardHeader>
       <CardContent stack>
