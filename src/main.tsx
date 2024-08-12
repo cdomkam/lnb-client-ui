@@ -35,7 +35,7 @@ export const Layout = () => {
       <TooltipProvider>
         <main>
           {/* <Header /> */}
-          <div id="app">
+          <div id="app" className="bg-[#F0E6CF]">
             <App />
           </div>
           <Analytics />
@@ -48,7 +48,7 @@ export const Layout = () => {
 
 const router = createBrowserRouter([
   {
-      path: '/',
+      path: '/devices',
       element: (
           <ProtectedRoute>
               <Layout />
@@ -63,7 +63,9 @@ const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    element: <DashBoard />,
+    element:( <ProtectedRoute>
+                <DashBoard />
+              </ProtectedRoute>),
     errorElement: <ErrorPage />,
 },
 ])

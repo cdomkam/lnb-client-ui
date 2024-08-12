@@ -1,6 +1,11 @@
 .agent {
   padding: theme(spacing.2);
   position: relative;
+  background-color: #F0E6CF;
+  /* border-width: 0.5px; */
+  /* border-color: black; */
+  
+  /* border-radius: theme(borderRadius.2xl); */
 }
 
 .agentWindow {

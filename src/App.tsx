@@ -18,6 +18,10 @@ import { fetch_start_agent } from "./actions";
 import { onAuthStateChanged } from 'firebase/auth';
 import {auth} from './api/firebase/setup'
 import Signout from "./components/SignOut";
+import { useUserContext } from "./components/context";
+import { set } from "firebase/database";
+import {useNavigate } from 'react-router-dom'
+
 type State =
   | "idle"
   | "configuring"
@@ -56,6 +60,7 @@ const isOpenMic = import.meta.env.VITE_OPEN_MIC ? true : false;
 
 export default function App() {
   const daily = useDaily();
+  const navigate = useNavigate()
 
   const [state, setState] = useState<State>(
     showConfigOptions ? "idle" : "configuring"
@@ -69,24 +74,31 @@ export default function App() {
   );
   const [capacityError, setCapacityError] = useState<string>(""); // New state for start error
 
-  const [fb_user_id, setUser] = useState<string | null>(null)
+  // const [fb_user_id, setUser] = useState<string | null>(null)
   
+  const { fb_user_id } = useUserContext()
   
-  useEffect(() => {
-    // This code runs only once, after the initial render
-    function get_fb_user_id(){
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setUser(user.uid)
-          console.log(user.uid)
-        } else {
-          // User is signed out.
-          console.log("User is Signed Out")
-        }
-      });
-    }
-    get_fb_user_id();
-  }, []); // Empty dependency array
+  function handleBack(){
+    navigate("/dashboard")
+  }
+  // useEffect(() => {
+  //  // This code runs only once, after the initial render
+  //   function get_fb_user_id(){
+  //     onAuthStateChanged(auth, (user) => {
+  //       if (user) {
+  //         setUser(user.uid)
+  //         console.log(user.uid)
+  //       } else {
+  //         // User is signed out.
+  //         console.log("User is Signed Out")
+  //       }
+  //     });
+  //   }
+  //   get_fb_user_id();
+    
+  //   console.log(fb_user_id)
+
+  // }, []); // Empty dependency array
 
   function handleRoomUrl() {
     if ((autoRoomCreation && serverUrl) || checkRoomUrl(roomUrl)) {
@@ -178,6 +190,7 @@ export default function App() {
   }
 
   if (state === "connected") {
+  // if ("connected" === "connected") {
     return (
       <Session
         onLeave={() => leave()}
@@ -189,11 +202,14 @@ export default function App() {
 
   if (state !== "idle") {
     return (
-    <div className="">
+    <div className="flex flex-col items-center">
       <div className="w-full">
-        <Signout/>
+        <Button className="w-full text-lg rounded-none" onClick={handleBack} > Go Back</Button>
       </div>
-      <Card shadow className="animate-appear max-w-lg justify-center">
+      {/* <div className="max-w-lg">
+        <Signout/>
+      </div> */}
+      <Card shadow className="animate-appear max-w-lg justify-center bg-[#F0E6CF] border-3">
         <CardHeader>
           <CardTitle>Configure your devices</CardTitle>
           <CardDescription>
